@@ -1,0 +1,79 @@
+{
+	"ImportPath": "github.com/vchrisr/cf-status-probe",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
+	"Deps": [
+		{
+			"ImportPath": "github.com/beorn7/perks/quantile",
+			"Rev": "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry-community/go-cfenv",
+			"Comment": "v1.15.0",
+			"Rev": "3b3d4d0e3aaeae8f0b7d0d41257228e92cef463e"
+		},
+		{
+			"ImportPath": "github.com/garyburd/redigo/internal",
+			"Comment": "v1.1.0-3-g95d11db",
+			"Rev": "95d11dba2d44531bdb8022752b98912baafae03a"
+		},
+		{
+			"ImportPath": "github.com/garyburd/redigo/redis",
+			"Comment": "v1.1.0-3-g95d11db",
+			"Rev": "95d11dba2d44531bdb8022752b98912baafae03a"
+		},
+		{
+			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "fec3b39b059c0f88fa6b20f5ed012b1aa203a8b4"
+		},
+		{
+			"ImportPath": "github.com/matttproud/golang_protobuf_extensions/pbutil",
+			"Comment": "v1.0.0-2-gc12348c",
+			"Rev": "c12348ce28de40eed0136aa2b644d0ee0650e56c"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/mapstructure",
+			"Rev": "53818660ed4955e899c0bcafa97299a388bd7c8e"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_golang/prometheus",
+			"Comment": "v0.8.0-85-gde4d4ff",
+			"Rev": "de4d4ffe63b9eff7f27484fdef6e421597e6abb4"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_golang/prometheus/promhttp",
+			"Comment": "v0.8.0-85-gde4d4ff",
+			"Rev": "de4d4ffe63b9eff7f27484fdef6e421597e6abb4"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_model/go",
+			"Comment": "model-0.0.2-14-g6f38060",
+			"Rev": "6f3806018612930941127f2a7c6c453ba2c527d2"
+		},
+		{
+			"ImportPath": "github.com/prometheus/common/expfmt",
+			"Rev": "13ba4ddd0caa9c28ca7b7bffe1dfa9ed8d5ef207"
+		},
+		{
+			"ImportPath": "github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
+			"Rev": "13ba4ddd0caa9c28ca7b7bffe1dfa9ed8d5ef207"
+		},
+		{
+			"ImportPath": "github.com/prometheus/common/model",
+			"Rev": "13ba4ddd0caa9c28ca7b7bffe1dfa9ed8d5ef207"
+		},
+		{
+			"ImportPath": "github.com/prometheus/procfs",
+			"Rev": "a3bfc74126ea9e45ee5d5c6f7fc86191b7d488fb"
+		},
+		{
+			"ImportPath": "github.com/prometheus/procfs/xfs",
+			"Rev": "a3bfc74126ea9e45ee5d5c6f7fc86191b7d488fb"
+		},
+		{
+			"ImportPath": "gopkg.in/redsync.v1",
+			"Comment": "v1.0.1",
+			"Rev": "98dabdf1c8574561bf976911c14ff652c47b1ddf"
+		}
+	]
+}
