@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+	//create and register prometheus metric.
 	tick := prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "tick_counter_minutes",
 		Help: "heartbeat",
@@ -21,16 +22,20 @@ func main() {
 
 	prometheus.MustRegister(tick)
 
+	//Get Cloud Foundry environment variables
 	cfEnv, err := cfenv.Current()
 	if err != nil {
 		panic(err)
 	}
 
+	//Find the redis credentials
 	redisServices, err := cfEnv.Services.WithTag("redis")
 	if err != nil {
 		panic(err)
 	}
 	redisCreds := redisServices[0].Credentials
+
+	//Create redis connection pool and pubsub client
 	redisPools := []redsync.Pool{redis.NewPool(func() (redis.Conn, error) {
 		c, redisErr := redis.Dial("tcp", redisCreds["hostname"].(string)+":"+redisCreds["port"].(string), redis.DialPassword(redisCreds["password"].(string)))
 		if redisErr != nil {
@@ -40,9 +45,12 @@ func main() {
 		return c, redisErr
 	}, 3)}
 
-	m := redsync.New(redisPools).NewMutex("tick", redsync.SetRetryDelay(1*time.Second), redsync.SetExpiry(60*time.Second))
 	ps := redis.PubSubConn{Conn: redisPools[0].Get()}
 
+	//Create mutex
+	m := redsync.New(redisPools).NewMutex("tick", redsync.SetRetryDelay(1*time.Second), redsync.SetExpiry(60*time.Second))
+
+	//go routine tries to get a lock and increase the counter. IF it succesfully increases the counter it publishes the new value through redis pubsub
 	go func() {
 		conn := redisPools[0].Get()
 		defer conn.Close()
@@ -66,6 +74,7 @@ func main() {
 		}
 	}()
 
+	//pubsub receiver. Gets the counter value via redis pubsub and updates the prometheus metric
 	go func() {
 		var counter int64
 		for {
