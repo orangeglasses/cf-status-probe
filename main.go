@@ -14,6 +14,9 @@ import (
 )
 
 func main() {
+
+	fmt.Println("Application start.")
+
 	//create and register prometheus metric.
 	tick := prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "tick_counter_minutes",
@@ -42,7 +45,7 @@ func main() {
 		if hostname == nil {
 			hostname = redisCreds["host"]
 		}
-		connectString := fmt.Sprintf("%v:%v",hostname,redisCreds["port"])
+		connectString := fmt.Sprintf("%v:%v", hostname, redisCreds["port"])
 		c, redisErr := redis.Dial("tcp", connectString, redis.DialPassword(redisCreds["password"].(string)))
 		if redisErr != nil {
 			return nil, redisErr
@@ -58,8 +61,7 @@ func main() {
 
 	//go routine tries to get a lock and increase the counter. IF it succesfully increases the counter it publishes the new value through redis pubsub
 	go func() {
-		conn := redisPools[0].Get()
-		defer conn.Close()
+		var conn redis.Conn
 
 		ps.Subscribe("counter-updated")
 		defer ps.Unsubscribe("counter-updated")
@@ -67,6 +69,8 @@ func main() {
 		for {
 			m.Lock()
 			fmt.Println("Acquired Lock.")
+
+			conn = redisPools[0].Get()
 
 			count, incrErr := redis.Int64(conn.Do("INCR", "counter"))
 			if incrErr != nil {
@@ -77,6 +81,8 @@ func main() {
 				fmt.Printf("Published counter value: %v\n", count)
 				conn.Do("PUBLISH", "counter-updated", count)
 			}
+
+			conn.Close()
 		}
 	}()
 
