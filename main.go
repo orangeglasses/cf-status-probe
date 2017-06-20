@@ -37,7 +37,13 @@ func main() {
 
 	//Create redis connection pool and pubsub client
 	redisPools := []redsync.Pool{redis.NewPool(func() (redis.Conn, error) {
-		c, redisErr := redis.Dial("tcp", redisCreds["hostname"].(string)+":"+redisCreds["port"].(string), redis.DialPassword(redisCreds["password"].(string)))
+		fmt.Println(redisCreds)
+		hostname := redisCreds["hostname"]
+		if hostname == nil {
+			hostname = redisCreds["host"]
+		}
+		connectString := fmt.Sprintf("%v:%v",hostname,redisCreds["port"])
+		c, redisErr := redis.Dial("tcp", connectString, redis.DialPassword(redisCreds["password"].(string)))
 		if redisErr != nil {
 			return nil, redisErr
 		}
