@@ -56,7 +56,7 @@ func main() {
 	ps := redis.PubSubConn{Conn: redisPools[0].Get()}
 
 	//Create mutex
-	m := redsync.New(redisPools).NewMutex("tick", redsync.SetRetryDelay(1*time.Second), redsync.SetExpiry(10000*time.Millisecond))
+	m := redsync.New(redisPools).NewMutex("tick", redsync.SetRetryDelay(1*time.Second), redsync.SetTries(61), redsync.SetExpiry(30*time.Second))
 
 	//go routine tries to get a lock and increase the counter. IF it succesfully increases the counter it publishes the new value through redis pubsub
 	go func() {
@@ -66,22 +66,25 @@ func main() {
 		defer ps.Unsubscribe("counter-updated")
 
 		for {
-			m.Lock()
-			fmt.Println("Acquired Lock.")
+			lockErr := m.Lock()
+			if lockErr == nil {
 
-			conn = redisPools[0].Get()
+				fmt.Println("Acquired Lock.")
 
-			count, incrErr := redis.Int64(conn.Do("INCR", "counter"))
-			if incrErr != nil {
-				fmt.Println("Could not increase counter value. Unlocking so somebody else can try." + incrErr.Error())
-				m.Unlock()
-				time.Sleep(10 * time.Second) //Sleep to rate limit the retries in case no other node succesfully increases the counter
-			} else {
-				fmt.Printf("Published counter value: %v\n", count)
-				conn.Do("PUBLISH", "counter-updated", count)
+				conn = redisPools[0].Get()
+
+				count, incrErr := redis.Int64(conn.Do("INCR", "counter"))
+				if incrErr != nil {
+					fmt.Println("Could not increase counter value. Unlocking so somebody else can try." + incrErr.Error())
+					m.Unlock()
+					time.Sleep(10 * time.Second) //Sleep to rate limit the retries in case no other node succesfully increases the counter
+				} else {
+					fmt.Printf("Published counter value: %v\n", count)
+					conn.Do("PUBLISH", "counter-updated", count)
+				}
+
+				conn.Close()
 			}
-
-			conn.Close()
 		}
 	}()
 
