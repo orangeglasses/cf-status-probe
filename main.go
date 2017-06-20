@@ -37,16 +37,15 @@ func main() {
 		panic(err)
 	}
 	redisCreds := redisServices[0].Credentials
+	redisHostname := redisCreds["hostname"]
+	if redisHostname == nil {
+		redisHostname = redisCreds["host"]
+	}
+	redisConnectString := fmt.Sprintf("%v:%v", redisHostname, redisCreds["port"])
 
 	//Create redis connection pool and pubsub client
 	redisPools := []redsync.Pool{redis.NewPool(func() (redis.Conn, error) {
-		fmt.Println(redisCreds)
-		hostname := redisCreds["hostname"]
-		if hostname == nil {
-			hostname = redisCreds["host"]
-		}
-		connectString := fmt.Sprintf("%v:%v", hostname, redisCreds["port"])
-		c, redisErr := redis.Dial("tcp", connectString, redis.DialPassword(redisCreds["password"].(string)))
+		c, redisErr := redis.Dial("tcp", redisConnectString, redis.DialPassword(redisCreds["password"].(string)))
 		if redisErr != nil {
 			return nil, redisErr
 		}
@@ -57,7 +56,7 @@ func main() {
 	ps := redis.PubSubConn{Conn: redisPools[0].Get()}
 
 	//Create mutex
-	m := redsync.New(redisPools).NewMutex("tick", redsync.SetRetryDelay(1*time.Second), redsync.SetExpiry(30000*time.Millisecond))
+	m := redsync.New(redisPools).NewMutex("tick", redsync.SetRetryDelay(1*time.Second), redsync.SetExpiry(10000*time.Millisecond))
 
 	//go routine tries to get a lock and increase the counter. IF it succesfully increases the counter it publishes the new value through redis pubsub
 	go func() {
