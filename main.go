@@ -57,7 +57,7 @@ func main() {
 	ps := redis.PubSubConn{Conn: redisPools[0].Get()}
 
 	//Create mutex
-	m := redsync.New(redisPools).NewMutex("tick", redsync.SetRetryDelay(1*time.Second), redsync.SetExpiry(60*time.Second))
+	m := redsync.New(redisPools).NewMutex("tick", redsync.SetRetryDelay(1*time.Second), redsync.SetExpiry(30000*time.Millisecond))
 
 	//go routine tries to get a lock and increase the counter. IF it succesfully increases the counter it publishes the new value through redis pubsub
 	go func() {
