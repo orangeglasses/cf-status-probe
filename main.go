@@ -58,6 +58,18 @@ func main() {
 	//Create mutex
 	m := redsync.New(redisPools).NewMutex("tick", redsync.SetRetryDelay(250*time.Millisecond), redsync.SetTries(241), redsync.SetExpiry(60*time.Second))
 
+	func() {
+		conn := redisPools[0].Get()
+		defer conn.Close()
+
+		counter, getErr := redis.Int64(conn.Do("GET", "counter"))
+		if getErr != nil {
+			panic(err)
+		}
+
+		tick.Set(float64(counter))
+	}()
+
 	//go routine tries to get a lock and increase the counter. IF it succesfully increases the counter it publishes the new value through redis pubsub
 	go func() {
 		var conn redis.Conn
@@ -97,6 +109,9 @@ func main() {
 				counter, _ = strconv.ParseInt(string(message.Data), 10, 64)
 				fmt.Printf("Received counter value: %v\n", counter)
 				tick.Set(float64(counter))
+			case error:
+				fmt.Println(message)
+				panic(message)
 			}
 		}
 	}()
