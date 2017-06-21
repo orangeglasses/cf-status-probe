@@ -2,8 +2,8 @@ applications:
 - name: cf-status-probe
   buildpack: go_buildpack
   instances: 2
-  memory: 1024M
-  disk_quota: 1024M
+  memory: 16M
+  disk_quota: 16M
   services:
   - proberedis
   stack: cflinuxfs2
