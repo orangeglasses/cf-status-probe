@@ -64,7 +64,7 @@ func main() {
 
 		counter, getErr := redis.Int64(conn.Do("GET", "counter"))
 		if getErr != nil {
-			panic(err)
+			redis.Int64(conn.Do("INCR", "counter"))
 		}
 
 		tick.Set(float64(counter))
